@@ -1,0 +1,87 @@
+:root {
+  --text: "Roboto", sans-serif;
+  --gray: #3c3c3c;
+  --black: #202020;
+  --white: #ffffff;
+  --primary: #1522b2;
+  --secondary: #282bff;
+  --success: #19AA90;
+  --danger: #cf3c4f;
+  --warning: #ffc409;
+}
+
+*, ::after, ::before {
+  box-sizing: border-box;
+}
+
+html {
+  box-sizing: border-box;
+  height: 100%;
+  width: auto;
+}
+
+body {
+  background-color: var(--primary);
+  margin: 0 !important;
+  min-height: 100%;
+  font-size: 1rem;
+  color: var(--black);
+}
+
+body, span, p, h1, h2, h3 {
+  font-family: var(--text);
+  margin: 0;
+  padding: 0;
+}
+
+img {
+  width: 100%;
+  height: auto;
+}
+
+.custom-btn {
+  color: var(--primary);
+  border-color: var(--primary);
+  font-size: 1rem;
+  padding: 5px 15px;
+  border: 1px solid;
+  border-radius: 8px;
+  text-decoration: none;
+
+  &:hover {
+    color: var(--white);
+    border-color: var(--primary);
+    background-color: var(--primary);
+  }
+}
+
+.btn-secundary {
+  color: var(--black);
+  border-color: var(--black);
+
+  &:hover {
+    border-color: var(--black);
+    background-color: var(--black);
+  }
+}
+
+.notistack-close-btn {
+  color: var(--white);
+}
+
+label.Mui-focused.MuiInputLabel-outlined {
+  margin: 0;
+}
+
+.form-field {
+  margin-bottom: 1.5rem;
+
+  input {
+    background-color: white;
+    border-radius: 5px;
+  }
+}
+
+.MuiFormControl-root {
+  width: 100%;
+}
