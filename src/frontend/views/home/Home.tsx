@@ -1,6 +1,6 @@
 import { IpcRendererEvent } from 'electron';
 import { useEffect, useState } from 'react';
-import { CircularProgress } from '@mui/material';
+import { CircularProgress, Snackbar } from '@mui/material';
 import { PieChart } from '@mui/x-charts/PieChart';
 import { Skeleton } from '@mui/material';
 import { useAppContext } from '../../hooks/useAppContext';
@@ -11,19 +11,27 @@ import "./Home.css";
 
 let syncingKaggleCSV = false;
 let syncingToWebForm = false;
+const syncingWFMaxCount = 600;
 
 export default function Home() {
-  const { state, addNotification, setFileInfo, incrementSyncRecordsCount } = useAppContext();
+  const {
+    state, addNotification, setFileInfo,
+    incrementSyncRecordsCount, setSynchronizing
+  } = useAppContext();
   const [text, setText] = useState("Downloading CSV file");
-  const [diff, setDiff] = useState(0);
+  const [syncedRecordsCount, setSyncedRecordsCount] = useState(0);
+  const [showWebFormSyncSnackbar, setShowWebFormSyncSnackbar] = useState(false);
 
   const listenToFileSync = (event: IpcRendererEvent, message: string) => setText(message);
   
+  const listenWebFormSync = (event: IpcRendererEvent, count: number) => incrementSyncRecordsCount(count);
+  
   const syncKaggleCSV = async (email: string, password: string) => {
-    if (syncingKaggleCSV) return;
+    if (syncingKaggleCSV || state.synchronizing) return;
     
-    const client = getIPCClient();
     syncingKaggleCSV = true;
+    setSynchronizing(true);
+    const client = getIPCClient();
     console.log("Starting sync file");
     try {
       // Init listener
@@ -32,6 +40,7 @@ export default function Home() {
       const result = await client.syncKaggleCSV({email, password});
       console.log("syncKaggleCSV", result);
       setFileInfo(result);
+      addNotification({variant: 'success', message: "CSV file downloaded and ready to start synchronization"});
     } catch (error) {
       console.error(error);
       addNotification({variant: 'error', message: "Unexpected error processing CSV file"});
@@ -39,45 +48,49 @@ export default function Home() {
     console.log("Ended sync file");
     // cleanup
     client.unlistenKaggleSync();
+    setSynchronizing(false);
     syncingKaggleCSV = false;
   };
 
-  const listenWebFormSync = (event: IpcRendererEvent, count: number) => incrementSyncRecordsCount(count);
-
   const syncToWebForm = async () => {
-    if (syncingToWebForm) return;
+    if (syncingToWebForm || state.synchronizing) return;
+    
     syncingToWebForm = true;
+    setSynchronizing(true);
+    setShowWebFormSyncSnackbar(true);
     const client = getIPCClient();
     console.log("Starting sync to web form");
     try {
       // Init listener
       client.listenWebFormSync(listenWebFormSync);
       // Start sync data
-      await client.syncDataToWebForm();
+      await client.syncDataToWebForm(state.user.form);
+      addNotification({variant: 'success', message: "Records synchronized with web form"});
     } catch (error) {
       console.error(error);
       addNotification({variant: 'error', message: "Unexpected error sending data to web form"});
     }
     console.log("Ended sync to web form");
     // cleanup
-    await (new Promise((r) => {setTimeout(() => r(true), 3000)}));
     client.unlistenWebFormSync();
+    setSynchronizing(false);
+    setShowWebFormSyncSnackbar(false);
     syncingToWebForm = false;
   };
 
-
   useEffect(() => {
     console.log("Home", state?.fileInfo);
-    if (!state.fileInfo)
+    if (!state.fileInfo && !syncingKaggleCSV)
       syncKaggleCSV(state.user.email, state.user.password);
   }, []);
   
   useEffect(() => {
-    if (!state?.fileInfo) return;
+    if (!state?.fileInfo || state?.fileInfo?.syncRecordsCount === state?.fileInfo?.recordsCount) return;
     // Sync data
     syncToWebForm();
     // Update UI
-    setDiff(1000 - state.fileInfo.syncRecordsCount); 
+    const mod = state.fileInfo.syncRecordsCount % syncingWFMaxCount;
+    setSyncedRecordsCount(syncedRecordsCount && mod === 0? syncingWFMaxCount : mod);
   }, [state.fileInfo]);
   
   return (
@@ -108,8 +121,8 @@ export default function Home() {
                 <PieChart series={[
                     {
                       data: [
-                        { id: 0, color: "cornflowerblue", value: 1000 - diff, label: 'Records downloaded' },
-                        { id: 1, color: "darkslategrey", value: diff, label: 'Records synchronized' },
+                        { id: 0, color: "cornflowerblue", value: syncingWFMaxCount - syncedRecordsCount, label: 'Remaining records' },
+                        { id: 1, color: "darkslategrey", value: syncedRecordsCount, label: 'Records synchronized' },
                       ],
                     },
                   ]}
@@ -119,6 +132,18 @@ export default function Home() {
           </div>
         }
       </div>
+      <Snackbar
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        open={showWebFormSyncSnackbar}
+        className="webform-sync-snackbar"
+        message={
+          <>
+            <CircularProgress />
+            <p>Synchronizing records to the web form</p>
+          </>
+        }
+        key="snackbar-synchronizing"
+      />
     </div>
   );
 }

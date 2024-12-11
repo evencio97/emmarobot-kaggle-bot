@@ -21,6 +21,7 @@ type AppContextProps = {
     setUser: (value: IUser | undefined) => void,
     setFileInfo: (value: IFileInfo | undefined) => void,
     setLoading: (value: boolean) => void,
+    setSynchronizing: (value: boolean) => void,
     addNotification: addNotificationFn,
     logout: () => void,
     incrementSyncRecordsCount: (value: number) => void
@@ -50,6 +51,7 @@ export const AppProvider = ({ children }: { children: ReactNode}) => {
         dispatch({ type: 'INCREMENT_FILE_INFO_SRC', payload: value});
     }
     const setLoading = (value: boolean) => dispatch({ type: 'SET_LOADING', payload: value});
+    const setSynchronizing = (value: boolean) => dispatch({ type: 'SET_SYNCHRONIZING', payload: value});
     const logout = () => {
         dispatch({ type: 'SET_FILE_INFO', payload: undefined});
         dispatch({ type: 'SET_USER', payload: undefined});
@@ -58,7 +60,8 @@ export const AppProvider = ({ children }: { children: ReactNode}) => {
     return (
         <AppContext.Provider value={{
             state, dispatch, setUser, setLoading, addNotification,
-            setFileInfo, logout, incrementSyncRecordsCount
+            setFileInfo, logout, incrementSyncRecordsCount,
+            setSynchronizing
         }}>
             {children}
         </AppContext.Provider>

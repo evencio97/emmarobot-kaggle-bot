@@ -19,7 +19,7 @@ export default function Header() {
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             {state?.user?.name}
           </Typography>
-          <Button color="inherit" onClick={logoutHandler}>Logout</Button>
+          <Button color="inherit" disabled={state.synchronizing} onClick={logoutHandler}>Logout</Button>
         </Toolbar>
       </AppBar>
     </Box>

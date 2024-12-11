@@ -5,3 +5,9 @@ import ipcSevice from "./frontend/services/ipcSevice";
 
 
 contextBridge.exposeInMainWorld('ipcClient', ipcSevice);
+
+contextBridge.exposeInMainWorld('environment', {
+  KAGGLE_USER: process.env.KAGGLE_USER || "",
+  KAGGLE_PASS: process.env.KAGGLE_PASS || "",
+  WEB_FORM_URL: process.env.WEB_FORM_URL || ""
+});

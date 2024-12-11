@@ -1,10 +1,12 @@
 import { FormEvent } from "react";
 import { Button, TextField } from "@mui/material";
 import { useAppContext } from "../../hooks/useAppContext";
-import { getFormHTMLData, getIPCClient } from "../../helpers/web";
+import { getEnvironment, getFormHTMLData, getIPCClient } from "../../helpers/web";
 import { IUser } from "../../../common/models/user";
 import "./Login.css";
 
+
+const {KAGGLE_USER, KAGGLE_PASS, WEB_FORM_URL} = getEnvironment();
 
 interface LoginPropsI {
   formId: string
@@ -42,10 +44,13 @@ export default function Login({formId}: LoginPropsI) {
   return (
     <form id={formId} onSubmit={handlerSubmit} >
       <div className="form-field">
-        <TextField name="email" type="email" label="Email" required />
+        <TextField name="email" type="email" label="Email" value={KAGGLE_USER} required />
       </div>
       <div className="form-field">
-        <TextField type="password" name="password" label="Password" required />
+        <TextField type="password" name="password" label="Password" value={KAGGLE_PASS} required />
+      </div>
+      <div className="form-field">
+        <TextField type="url" name="form" label="Form url" value={WEB_FORM_URL} required />
       </div>
       <Button variant="contained" type="submit">
         Continue

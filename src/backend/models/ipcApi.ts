@@ -9,7 +9,7 @@ export type ILoginToKaggleFn = IIPCApiFn<IIPCFnAuhtArgs, string>
 
 export type ISyncKaggleCSVFn = IIPCApiFn<IIPCFnAuhtArgs, IFileInfo>
 
-export type ISyncDataToWebFormFn = (event: IpcMainInvokeEvent) => Promise<void>
+export type ISyncDataToWebFormFn = (event: IpcMainInvokeEvent, formUrl: string) => Promise<void>
 
 export interface IIPCApi {
   loginToKaggle: ILoginToKaggleFn

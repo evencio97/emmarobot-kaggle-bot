@@ -6,16 +6,20 @@ import storageSevice from "../../services/storageSevice";
 export type AppState = {
     user: IUser | undefined,
     loading: boolean,
-    fileInfo: IFileInfo | undefined
+    fileInfo: IFileInfo | undefined,
+    synchronizing: boolean,
 };
 
 export type AppActions = {
-    type: "SET_USER" | "SET_LOADING" | "SET_FILE_INFO" | "INCREMENT_FILE_INFO_SRC",
+    type: "SET_USER" | "SET_LOADING" | "SET_SYNCHRONIZING" | "SET_FILE_INFO" | "INCREMENT_FILE_INFO_SRC",
     payload: IUser | undefined | boolean | IFileInfo | number
 };
 
 export const initialState: AppState = {
-    user: storageSevice.getUser(), loading: false, fileInfo: storageSevice.getFileInfo()
+    user: storageSevice.getUser(),
+    loading: false,
+    fileInfo: storageSevice.getFileInfo(),
+    synchronizing: false
 }
 
 export const appReducer = (state: AppState = initialState, action: AppActions): AppState => {
@@ -28,7 +32,9 @@ export const appReducer = (state: AppState = initialState, action: AppActions): 
             return {...state, fileInfo: action.payload as IFileInfo};
         case "SET_LOADING":
             return {...state, loading: action.payload as boolean};
-            case "INCREMENT_FILE_INFO_SRC":
+        case "SET_SYNCHRONIZING":
+            return {...state, synchronizing: action.payload as boolean};
+        case "INCREMENT_FILE_INFO_SRC":
             const aux = {
                 ...state.fileInfo,
                 syncRecordsCount: state.fileInfo.syncRecordsCount + (action.payload as number)

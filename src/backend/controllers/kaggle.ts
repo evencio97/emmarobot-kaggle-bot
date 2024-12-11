@@ -5,7 +5,7 @@ import { IFileWithData } from '../../common/models/file';
 import { unzip } from './file';
 import { sendMainWindowEvent } from './window';
 import { IPCChannels } from '../../common/models/ipc';
-import { webFormUrl, WebFormCssSelectors } from '../../common/models/webForm';
+import { WebFormCssSelectors } from '../../common/models/webForm';
 import { IBabyNameData } from '../../common/models/babyName';
 import database from './database';
 
@@ -36,7 +36,7 @@ const navigateTo = async (page: Page, url: string) => Promise.all([
 ]);
 
 const navigateToWithRetry = async (page: Page, url: string) => {
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 5; i++) {
         try {
             return await navigateTo(page, url);
         } catch (error) {
@@ -44,7 +44,7 @@ const navigateToWithRetry = async (page: Page, url: string) => {
                 throw error;
         }
         // Sleep
-        await sleep(250);
+        await sleep(300);
     }
 }
 
@@ -95,14 +95,14 @@ const decorator = (fn:CallableFunction) => {
     async function wrapper() {
         const start = Date.now();
         const result: any = await fn(...Array.from(arguments));
-        console.log("TIME:", Date.now() - start, "ms");
+        console.log("TIME:", Math.round(((Date.now() - start) / 1000) * 100) / 100, "seg");
         return result;
     }
     return wrapper;
 }
 
 const login: ILoginToKaggleFn = async (event, {email, password}) => {
-    // console.log("login");
+    console.log("login");
     // Init browser and page
     await getBrowser();
     const page = await browser.newPage();
@@ -164,6 +164,7 @@ const downloadCSV = async (page: Page) => {
 }
 
 const syncCSV: ISyncKaggleCSVFn = async (event, {email, password}) => {
+    console.log("syncCSV");
     await getBrowser();
     const page = await browser.newPage();
     // Check if logged
@@ -188,9 +189,9 @@ const syncCSV: ISyncKaggleCSVFn = async (event, {email, password}) => {
     }
 }
 
-const submitWebForm = async (page: Page, data: IBabyNameData) => {
+const submitWebForm = async (page: Page, formUrl: string, data: IBabyNameData) => {
     // Navigate to web form
-    await navigateToWithRetry(page, webFormUrl);
+    await navigateToWithRetry(page, formUrl);
     // Fill form and submit
     await page.waitForSelector(WebFormCssSelectors.YEAR_INPUT);
     await page.locator(WebFormCssSelectors.YEAR_INPUT).fill(data.year);
@@ -201,20 +202,20 @@ const submitWebForm = async (page: Page, data: IBabyNameData) => {
     await clickAndWait(page, WebFormCssSelectors.SUBMIT);
 }
 
-const syncDataToWebForm: ISyncDataToWebFormFn = async (event) => {
+const syncDataToWebForm: ISyncDataToWebFormFn = async (event, formUrl) => {
     console.log("syncDataToWebForm");
     await getBrowser();
     const page = await browser.newPage();
     let batch: any[], count: number = 0;
     let ids: number[] = [];
-    // Get 500 records
+    // Sync 600 records
     for (let i = 0; i < 6; i++) {
         try {
             // Get data
             batch = await database.getBatch();
             for (const e of batch) {
                 try {
-                    await submitWebForm(page, e.toJSON());
+                    await submitWebForm(page, formUrl, e.toJSON());
                     count++;
                     ids.push(e.id);
                 } catch (error) {  }

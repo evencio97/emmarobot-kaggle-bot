@@ -6,7 +6,7 @@ import { IIPCClient } from '../models/ipcClient';
 const client: IIPCClient = {
     loginToKaggle: (data) => ipcRenderer.invoke(IPCChannels.LOGIN_TO_KAGGLE, data),
     syncKaggleCSV: (data) => ipcRenderer.invoke(IPCChannels.SYNC_KAGGLE_CSV, data),
-    syncDataToWebForm: () => ipcRenderer.invoke(IPCChannels.SYNC_DATA_TO_WEB_FORM),
+    syncDataToWebForm: (url) => ipcRenderer.invoke(IPCChannels.SYNC_DATA_TO_WEB_FORM, url),
     listenKaggleSync: (listener) => ipcRenderer.on(IPCChannels.SYNC_KAGGLE_UPDATES, listener),
     unlistenKaggleSync: () => ipcRenderer.removeAllListeners(IPCChannels.SYNC_KAGGLE_UPDATES),
     listenWebFormSync: (listener) => ipcRenderer.on(IPCChannels.SYNC_WEB_FORM_UPDATES, listener),

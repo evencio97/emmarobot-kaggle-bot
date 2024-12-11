@@ -11,7 +11,7 @@ type IIPCClientListenerFn = (args: ipcClientListener) => any
 export interface IIPCClient {
   loginToKaggle: IIPCClientFn<IIPCFnAuhtArgs, string>
   syncKaggleCSV: IIPCClientFn<IIPCFnAuhtArgs, IFileInfo>
-  syncDataToWebForm: () => Promise<void>,
+  syncDataToWebForm: IIPCClientFn<string, void>,
   listenKaggleSync: IIPCClientListenerFn,
   unlistenKaggleSync: () => void,
   listenWebFormSync: IIPCClientListenerFn
