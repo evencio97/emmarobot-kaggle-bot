@@ -36,6 +36,7 @@ const navigateTo = async (page: Page, url: string) => Promise.all([
 ]);
 
 const navigateToWithRetry = async (page: Page, url: string) => {
+    let waitTime = 300;
     for (let i = 0; i < 5; i++) {
         try {
             return await navigateTo(page, url);
@@ -44,8 +45,10 @@ const navigateToWithRetry = async (page: Page, url: string) => {
                 throw error;
         }
         // Sleep
-        await sleep(300);
+        waitTime += 100;
+        await sleep(waitTime);
     }
+    console.log("UNABLE TO NAVIGATE TO WEB FORM");
 }
 
 const clickAndWait = async (page: Page, selector: string) => Promise.all([

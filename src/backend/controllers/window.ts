@@ -7,7 +7,7 @@ export const createMainWindow = (preload_entry: string, main_entry: string): voi
   if (mainWindow) return;
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    width: 1920,
+    width: 1400,
     height: 1080,
     webPreferences: {
       preload: preload_entry,
@@ -15,12 +15,12 @@ export const createMainWindow = (preload_entry: string, main_entry: string): voi
       nodeIntegrationInWorker: true
     },
   });
-  // mainWindow.removeMenu();
+  mainWindow.removeMenu();
   // mainWindow.maximize();
   // and load the index.html of the app.
   mainWindow.loadURL(main_entry);
   // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  // mainWindow.webContents.openDevTools();
 };
 
 export const getMainWindow = () => mainWindow;
