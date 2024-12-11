@@ -2,10 +2,6 @@ import { Sequelize } from 'sequelize';
 import fs from 'fs';
 
 
-// const logQuery = (sql: string, timing: number) => {
-//   console.log(`[${timing} ms] ${sql}`);
-// }
-
 const sequelize = new Sequelize(
   process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD,
   {
